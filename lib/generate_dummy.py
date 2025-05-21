@@ -6,7 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'..')))
 from sqlalchemy.orm import sessionmaker
 from model.model import Relationship, Role,MaritalStatus, StatusInquiry, engine
 
-Session = sessionmaker(bind=engine)
+Session = sessionmaker(bind=engine,autoflush=False)
 session = Session()
 
 def generate_role():

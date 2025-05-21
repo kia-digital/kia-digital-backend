@@ -1,7 +1,10 @@
 
 import os
 from dotenv import load_dotenv
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
+from lib.db_init import get_db
+from service.user_service import UserService
+from sqlalchemy.orm import Session
 
 load_dotenv()
 
@@ -12,10 +15,15 @@ class AuthController:
         self.router.add_api_route("/login",self.login,methods=["POST"])
         self.router.add_api_route("/register",self.register,methods=["POST"])
     
-    async def login(self,request: Request):
+    async def login(self,request: Request,db: Session = Depends(get_db)):
         body = await request.json()
-        
-        return request
+        return UserService.check_isAvalibale(body,db)
     
-    async def register(self,request: Request):
-        return request
+    async def register(self,request: Request,db: Session = Depends(get_db)):
+        body_request = await request.json()
+        
+        print(body_request)
+        
+        return UserService.registrasi_account(body_request,db)
+        
+        

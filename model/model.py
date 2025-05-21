@@ -13,7 +13,7 @@ class User(Base):
     __tablename__ = "users"
     id = Column(String,name="id",primary_key=True,default=generate_uuid)
     name = Column(String, name="name")
-    email = Column(String,name="email")
+    email = Column(String,name="email",unique=True)
     phone_number = Column(String,name="phone_number",nullable=True)
     password = Column(String,name="password")
     birth_place = Column(String, name="birth_place",nullable=True)
@@ -24,9 +24,9 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     update_at = Column(DateTime(timezone=True), onupdate=func.now())
     
-    role_id = Column(INT, ForeignKey("roles.id"),nullable=False)
+    role_id = Column(INT, ForeignKey("roles.id"),nullable=True)
     role = relationship("Role",back_populates="users")
-    marital_status_id = Column(INT,ForeignKey("marital_status.id"),nullable=False)
+    marital_status_id = Column(INT,ForeignKey("marital_status.id"),nullable=True)
     marital_status = relationship("MaritalStatus",back_populates="users")
     emergency_contact = relationship("EmergencyContact", back_populates="user")
     medical_records = relationship("MedicalRecord", back_populates="user")
