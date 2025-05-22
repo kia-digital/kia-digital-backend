@@ -72,6 +72,7 @@ class MedicalRecord(Base):
     disease_history = Column(String,name="disease_history")
     allergies_history = Column(String,name="allergies_history")
     body_weight = Column(String,name="body_weight")
+    body_height = Column(String,name="body_height")
     immunization_status = Column(String,name="immunization_status")
     pregnancy_history = Column(String,name="pregnancy_history")
     user_id = Column(String,ForeignKey("users.id"),nullable=False)

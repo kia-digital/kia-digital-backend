@@ -23,25 +23,21 @@ class AuthService:
         return token
     
     @classmethod
-    def verify_token(cls,credentials: HTTPAuthorizationCredentials = Depends(security)):
-        token = credentials.credentials
+    def verify_token(cls,token):
         try:
             payload = jwt.decode(token,cls.SECRET_KEY,algorithms=[cls.ALGORITHM])
-            return { "status" : "success", "message": "login success", "token": payload }
+            return { "status" : 200, "message": "login success", "payload": payload }
+        
         except jwt.ExpiredSignatureError:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail= {
-                    "status": "failed",
+            return {
+                    "status": 401,
                     "message": "token expired",
-                    "token" : None
-                })
+                    "payload" : None
+                }
         
         except jwt.PyJWTError:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail= {
-                    "status": "failed",
+            return {
+                    "status": 401,
                     "message": "token invalid",
-                    "token" : None
-                })
+                    "payload" : None
+            }

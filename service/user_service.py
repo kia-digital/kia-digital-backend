@@ -42,7 +42,7 @@ class UserService:
         
         if user:
           if bcrypt.checkpw(input_password,stored_password):
-            token = AuthService.create_token(data)
+            token = AuthService.create_token({"user_id":user.id})
             raise HTTPException(
                 status_code=status.HTTP_202_ACCEPTED,
                 detail={
