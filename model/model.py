@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import URL, DateTime, ForeignKey,FLOAT ,String,CHAR,DATE,INT, create_engine, func
+from sqlalchemy import URL, DateTime, ForeignKey,FLOAT ,String,CHAR,DATE,INT, create_engine, func, BOOLEAN
 from sqlalchemy.schema import Column
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import declarative_base
@@ -13,7 +13,7 @@ class User(Base):
     __tablename__ = "users"
     id = Column(String,name="id",primary_key=True,default=generate_uuid)
     name = Column(String, name="name")
-    email = Column(String,name="email")
+    email = Column(String,name="email",unique=True)
     phone_number = Column(String,name="phone_number",nullable=True)
     password = Column(String,name="password")
     birth_place = Column(String, name="birth_place",nullable=True)
@@ -26,11 +26,24 @@ class User(Base):
     
     role_id = Column(INT, ForeignKey("roles.id"),nullable=False)
     role = relationship("Role",back_populates="users")
-    marital_status_id = Column(INT,ForeignKey("marital_status.id"),nullable=False)
+    
+    account_verification = relationship("AccountVerification",
+                                        back_populates="users")
+    
+    marital_status_id = Column(INT,ForeignKey("marital_status.id"),nullable=True)
     marital_status = relationship("MaritalStatus",back_populates="users")
     emergency_contact = relationship("EmergencyContact", back_populates="user")
     medical_records = relationship("MedicalRecord", back_populates="user")
     inquiry_anc = relationship("InquiryAnc", back_populates="users")
+
+class AccountVerification(Base):
+    __tablename__ = "account_verifications"
+    
+    id = Column(INT,name="id",primary_key = True,autoincrement=True)
+    users_id = Column(String,ForeignKey("users.id"),nullable=False)
+    token = Column(String,name="token",nullable=False)
+    verified = Column(BOOLEAN,name="is_verified",nullable=False)
+    users = relationship("User",back_populates="account_verification")
 
 class MaritalStatus(Base):
     __tablename__ = "marital_status"
@@ -72,6 +85,7 @@ class MedicalRecord(Base):
     disease_history = Column(String,name="disease_history")
     allergies_history = Column(String,name="allergies_history")
     body_weight = Column(String,name="body_weight")
+    body_height = Column(String,name="body_height")
     immunization_status = Column(String,name="immunization_status")
     pregnancy_history = Column(String,name="pregnancy_history")
     user_id = Column(String,ForeignKey("users.id"),nullable=False)

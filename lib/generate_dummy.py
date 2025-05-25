@@ -12,9 +12,8 @@ session = Session()
 def generate_role():
     role_healthcare = Role(name = "healthcare")
     role_user = Role(name = "user")
-    session.add_all([role_healthcare,role_user])
+    session.add_all([role_healthcare,role_user])  
     session.commit()
-    session.close()
     
 def generate_marital_status():
     marital_option  = ["Menikah",
@@ -28,9 +27,8 @@ def generate_marital_status():
         marital_status = MaritalStatus(name=i)
         data.append(marital_status)
     
-    session.add_all(data)
+    session.add_all(data)   
     session.commit()
-    session.close()
 
 def generate_relationship():
     relationship_option = [
@@ -53,7 +51,6 @@ def generate_relationship():
     
     session.add_all(data)
     session.commit()
-    session.close()
 
 def generate_status_inquiry_anc():
     status_inquiry_option = ["Terlaksana","Terjadwalkan"]
@@ -64,10 +61,10 @@ def generate_status_inquiry_anc():
     
     session.add_all(data)
     session.commit()
+
+if __name__ == "__main__":
+    generate_role()
+    generate_marital_status()
+    generate_relationship()
+    generate_status_inquiry_anc()
     session.close()
-
-generate_role()
-generate_marital_status()
-generate_relationship()
-generate_status_inquiry_anc()
-
