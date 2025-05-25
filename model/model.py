@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import URL, DateTime, ForeignKey,FLOAT ,String,CHAR,DATE,INT, create_engine, func
+from sqlalchemy import URL, DateTime, ForeignKey,FLOAT ,String,CHAR,DATE,INT, create_engine, func, BOOLEAN
 from sqlalchemy.schema import Column
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import declarative_base
@@ -24,13 +24,26 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     update_at = Column(DateTime(timezone=True), onupdate=func.now())
     
-    role_id = Column(INT, ForeignKey("roles.id"),nullable=True)
+    role_id = Column(INT, ForeignKey("roles.id"),nullable=False)
     role = relationship("Role",back_populates="users")
+    
+    account_verification = relationship("AccountVerification",
+                                        back_populates="users")
+    
     marital_status_id = Column(INT,ForeignKey("marital_status.id"),nullable=True)
     marital_status = relationship("MaritalStatus",back_populates="users")
     emergency_contact = relationship("EmergencyContact", back_populates="user")
     medical_records = relationship("MedicalRecord", back_populates="user")
     inquiry_anc = relationship("InquiryAnc", back_populates="users")
+
+class AccountVerification(Base):
+    __tablename__ = "account_verifications"
+    
+    id = Column(INT,name="id",primary_key = True,autoincrement=True)
+    users_id = Column(String,ForeignKey("users.id"),nullable=False)
+    token = Column(String,name="token",nullable=False)
+    verified = Column(BOOLEAN,name="is_verified",nullable=False)
+    users = relationship("User",back_populates="account_verification")
 
 class MaritalStatus(Base):
     __tablename__ = "marital_status"

@@ -1,11 +1,19 @@
 from sqlalchemy.orm import Session
-from model.model import Relationship, User,MedicalRecord,EmergencyContact
+from model.model import MaritalStatus, Relationship, User,MedicalRecord,EmergencyContact
 
-class InquiryService:
-    
+class InquiryService:   
+     
     @classmethod
     def get_information_mom(cls, user_id: str, db: Session):
         user = db.query(User).filter_by(id=user_id).first()
+        
+        marital_status = (
+            db.query(MaritalStatus)
+            .filter(MaritalStatus.id == user.marital_status_id)
+            .first()
+        )
+        
+        
         if not user:
             return {"error": "User not found"}
 
@@ -22,7 +30,6 @@ class InquiryService:
             .first()
         )
         
-
         if emergency_data:
             contact, relationship_name = emergency_data
             emergency_contact = {
@@ -31,6 +38,7 @@ class InquiryService:
                 "relationship": relationship_name,
                 "address": contact.address,
             }
+            
         else:
             emergency_contact = {
                 "name": "-",
@@ -75,5 +83,4 @@ class InquiryService:
             "emergency_contact": emergency_contact,
             "medical_record": medical_record
         }
-    
     
