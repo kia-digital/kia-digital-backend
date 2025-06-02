@@ -117,7 +117,6 @@ class UserService:
             .first()
         )
         
-        db.close()
         
         if account_user_status.token == token and account_user_status:
             is_verified = AuthService.verify_token(token)
@@ -129,10 +128,13 @@ class UserService:
             if is_verified["status"] == 200:
                 account_user_status.verified = True
                 db.commit()
+                db.close()
                 return response
             else:
+                db.close()
                 return response   
                 
         else:
+            db.close()
             return response
         
