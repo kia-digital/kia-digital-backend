@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import URL, DateTime, ForeignKey,FLOAT ,String,CHAR,DATE,INT, create_engine, func, BOOLEAN
+from sqlalchemy import TIME, URL, DateTime, ForeignKey,FLOAT ,String,CHAR,DATE,INT, create_engine, func, BOOLEAN
 from sqlalchemy.schema import Column
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import declarative_base
@@ -35,6 +35,7 @@ class User(Base):
     emergency_contact = relationship("EmergencyContact", back_populates="user")
     medical_records = relationship("MedicalRecord", back_populates="user")
     inquiry_anc = relationship("InquiryAnc", back_populates="users")
+    scheduleds = relationship("Scheduleds",back_populates="mom")
 
 class AccountVerification(Base):
     __tablename__ = "account_verifications"
@@ -118,6 +119,29 @@ class StatusInquiry(Base):
     id = Column(INT,name="id",primary_key=True,autoincrement=True)
     name = Column(String,name="name",nullable=False)
     inquiry_anc = relationship("InquiryAnc",back_populates="status_inquiry")
+    
+
+class Scheduleds(Base):
+    __tablename__= "scheduleds"
+    
+    id = Column(INT,name="id",primary_key=True,autoincrement=True)
+    name = Column(String,name="name",nullable=False)
+    date = Column(DATE,name="date_scheduled",nullable=False)
+    hours = Column(TIME,name="time_scheduled",nullable=False)
+    location = Column(String,name="location",nullable=False)
+    status = Column(BOOLEAN,name="status",nullable=False)
+    status_scheduled_id = Column(INT,ForeignKey("status_scheduled.id"),nullable=False)
+    status_scheduled = relationship("StatusScheduled",back_populates="scheduleds")
+    
+    moms_id = Column(String,ForeignKey("users.id"),nullable=False)
+    mom = relationship("User",back_populates="scheduleds")
+    
+
+class StatusScheduled(Base):
+    __tablename__="status_scheduled"
+    id = Column(INT,name="id",primary_key=True,autoincrement=True)
+    name= Column(String,name="name",nullable=False)
+    scheduleds = relationship("Scheduleds",back_populates="status_scheduled")
     
 url = URL.create(
     drivername="postgresql",

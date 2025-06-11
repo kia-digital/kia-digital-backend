@@ -15,10 +15,12 @@ class InquiryController:
     def __init__(self):
         URL_PATH = os.getenv("URL_PATH")
         self.router = APIRouter(prefix= f"{URL_PATH}/inquiry")
-        self.router.add_api_route("/information",self.information_user,methods=["GET"])
+        self.router.add_api_route("/information",self.information_mom,methods=["GET"])
         self.router.add_api_route("/information/update-users",self.patch_information,methods=["PATCH"])
+        self.router.add_api_route("/anc/add",self.addAnc,methods=["POST"])
+        
     
-    async def information_user(
+    async def information_mom(
         self,
         db:Session = Depends(get_db),
         authorization: str = Header(None)
