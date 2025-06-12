@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import URL, DateTime, ForeignKey,FLOAT ,String,CHAR,DATE,INT, create_engine, func, BOOLEAN
+from sqlalchemy import TIME, URL, DateTime, ForeignKey,FLOAT ,String,CHAR,DATE,INT, create_engine, func, BOOLEAN
 from sqlalchemy.schema import Column
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import declarative_base
@@ -35,6 +35,8 @@ class User(Base):
     emergency_contact = relationship("EmergencyContact", back_populates="user")
     medical_records = relationship("MedicalRecord", back_populates="user")
     inquiry_anc = relationship("InquiryAnc", back_populates="users")
+    scheduleds = relationship("Scheduleds",back_populates="mom")
+    weekly_monitorings = relationship("WeeklyMonitoring", back_populates="user")
 
 class AccountVerification(Base):
     __tablename__ = "account_verifications"
@@ -102,16 +104,18 @@ class InquiryAnc(Base):
     body_weight = Column(FLOAT,name="body_weight",nullable=False)
     healthcare = Column(String,name="healthcare",nullable=False)
     height_uterine_fundus = Column(FLOAT,name="height_uterine_fundus",nullable=True)
-    blood_pressure = Column(FLOAT,name="blood_pressure",nullable=False)
     blood_sugar = Column(FLOAT,name="blood_sugar",nullable=False)
     heart_rate = Column(FLOAT,name="heart_rate",nullable=False)
     note = Column(String,name="note",nullable=True)
+    sistolik = Column(INT,name="sistolik",nullable=False)
+    diastolik = Column(INT,name="diastolik",nullable=False)
     users_id = Column(String,ForeignKey("users.id"),nullable=False)
     users = relationship("User",back_populates="inquiry_anc")
-    
+    body_temperature= Column(FLOAT,name="body_temperature",nullable=False)
     status_inquiry_id = Column(INT,ForeignKey("status_inquiry.id"),nullable=False)
     status_inquiry = relationship("StatusInquiry",back_populates="inquiry_anc")
-
+    
+    
 class StatusInquiry(Base):
     __tablename__ = "status_inquiry"
     
@@ -119,6 +123,72 @@ class StatusInquiry(Base):
     name = Column(String,name="name",nullable=False)
     inquiry_anc = relationship("InquiryAnc",back_populates="status_inquiry")
     
+
+class Scheduleds(Base):
+    __tablename__= "scheduleds"
+    
+    id = Column(INT,name="id",primary_key=True,autoincrement=True)
+    name = Column(String,name="name",nullable=False)
+    date = Column(DATE,name="date_scheduled",nullable=False)
+    hours = Column(TIME,name="time_scheduled",nullable=False)
+    location = Column(String,name="location",nullable=False)
+    status = Column(BOOLEAN,name="status",nullable=False)
+    status_scheduled_id = Column(INT,ForeignKey("status_scheduled.id"),nullable=False)
+    status_scheduled = relationship("StatusScheduled",back_populates="scheduleds")
+    
+    moms_id = Column(String,ForeignKey("users.id"),nullable=False)
+    mom = relationship("User",back_populates="scheduleds")
+    
+
+class StatusScheduled(Base):
+    __tablename__="status_scheduled"
+    id = Column(INT,name="id",primary_key=True,autoincrement=True)
+    name= Column(String,name="name",nullable=False)
+    scheduleds = relationship("Scheduleds",back_populates="status_scheduled")
+    
+
+class WeeklyMonitoring(Base):
+    __tablename__ = "weekly_monitorings"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    monitoring_date = Column(DATE, nullable=False)
+    weekly_pregnantcy = Column(INT, nullable=False)
+    fever = Column(BOOLEAN, nullable=False)
+    headache = Column(BOOLEAN, nullable=False)
+    insomnia_or_anxiety = Column(BOOLEAN, nullable=False)
+    tb_risk = Column(BOOLEAN, nullable=False)
+    fetal_movement = Column(BOOLEAN, nullable=False)
+    abdominal_pain = Column(BOOLEAN, nullable=False)
+    discharge = Column(BOOLEAN, nullable=False)
+    urination_issues = Column(BOOLEAN, nullable=False)
+    diarrhea = Column(BOOLEAN, nullable=False)
+
+    users_id = Column("users_id", String, ForeignKey("users.id"), nullable=False)
+    type_inquiry = Column("type_inquiry", INT, ForeignKey("type_inquiry.id"), nullable=False)
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("User", back_populates="weekly_monitorings")
+    type_inquiry_rel = relationship("TypeInquiry", back_populates="weekly_monitoring")
+
+   
+class TypeInquiry(Base):
+    __tablename__ = "type_inquiry"
+    
+    id = Column(INT,name="id",autoincrement=True,primary_key=True)
+    name = Column(String,name="name",nullable=False)
+    weekly_monitoring = relationship("WeeklyMonitoring", back_populates="type_inquiry_rel")
+ 
+class Article(Base):
+    __tablename__ = "article"
+    
+    id = Column(INT,name="id",autoincrement=True,primary_key=True)    
+    judul = Column(String,name="judul",nullable= False)    
+    kategori =  Column(String,name="kategori",nullable= False)    
+    deskripsi =  Column(String,name="deskripsi",nullable= False)  
+    content =  Column(String,name="content",nullable= False)   
+    tag =  Column(String,name="tag",nullable= False) 
+
 url = URL.create(
     drivername="postgresql",
     username="postgres",

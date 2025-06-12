@@ -1,7 +1,32 @@
 from sqlalchemy.orm import Session
-from model.model import MaritalStatus, Role, Relationship, StatusInquiry
+from model.model import MaritalStatus, Role, Relationship, StatusInquiry,TypeInquiry
 
 class UIService:
+    
+    
+    @classmethod
+    def getTypeInquiry(cls,db:Session):
+        type_inquirys = db.query(TypeInquiry).all()
+        if type_inquirys:
+            
+            result= {
+                "status" : "success",
+                "message": "success get marital status",
+                "data": [
+                    {
+                        "id": type_inquiry.id,
+                        "name": type_inquiry.name
+                    }
+                    for type_inquiry in type_inquirys
+                ]
+            }
+            
+            db.close()
+            return result
+        
+        else : 
+            db.close()
+            return None
     
     @classmethod
     def get_mmarital_status(cls,db: Session):
@@ -68,19 +93,27 @@ class UIService:
     @classmethod
     def get_status_inquiry( cls, db: Session):
         status_inquirys = db.query(StatusInquiry).all()
-        db.close()
-        response = []
+    
         
         if status_inquirys:
-            for status_inquiry in status_inquirys:
-                status_inquiry_data = { "id": status_inquiry.id, "name": status_inquiry.name}
-                response.append(status_inquiry_data)
             
-            return {
+            result= {
                 "status" : "success",
                 "message": "success get marital status",
-                "data": response
+                "data": [
+                    {
+                        "id": status.id,
+                        "name": status.name
+                    }
+                    for status in status_inquirys
+                ]
             }
+            
+            db.close()
+            return result
         
         else : 
+            db.close()
             return None
+        
+    

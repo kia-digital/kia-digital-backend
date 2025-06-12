@@ -1,10 +1,11 @@
 import sys
 import os
+import pandas as pd
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'..')))
 
 from sqlalchemy.orm import sessionmaker
-from model.model import Relationship, Role,MaritalStatus, StatusInquiry, engine
+from model.model import Article, Relationship, Role,MaritalStatus, StatusInquiry, engine
 
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -51,6 +52,33 @@ def generate_relationship():
     
     session.add_all(data)
     session.commit()
+    
+def generate_dummy_article():
+    csv_file = "data_artikel_new.csv"
+    df = pd.read_csv(csv_file)
+     
+    data = []
+    
+    for index, row in df.iterrows():
+        id_ = row['id']
+        judul = row['judul']
+        kategori = row['kategori']
+        deskripsi = row['deskripsi']
+        content = row['content']
+        tag = row['tag']
+        
+        article = Article(
+            judul=judul,
+            kategori=kategori,
+            deskripsi=deskripsi,
+            content= content,
+            tag=tag
+        )
+        data.append(article)
+    
+    session.add_all(data)
+    session.commit()   
+    
 
 def generate_status_inquiry_anc():
     status_inquiry_option = ["Terlaksana","Terjadwalkan"]
@@ -67,4 +95,5 @@ if __name__ == "__main__":
     generate_marital_status()
     generate_relationship()
     generate_status_inquiry_anc()
+    generate_dummy_article()
     session.close()
