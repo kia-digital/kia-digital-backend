@@ -16,6 +16,37 @@ class DataUIController:
         self.router.add_api_route("/roles",self.roles,methods=["GET"])
         self.router.add_api_route("/relationships",self.relationship,methods=["GET"])
         self.router.add_api_route("/status-inquiry",self.status_inquiry,methods=["GET"])
+        self.router.add_api_route("/type-blood-pressure",self.get_type_blood_pressure,methods=["GET"])
+        self.router.add_api_route("/type-inquiry",self.getTypeInquiry,methods=["GET"])
+        
+    
+    def getTypeInquiry(self,db: Session = Depends(get_db)):
+        response = UIService.getTypeInquiry(db)
+        if response:
+            raise HTTPException( status_code= status.HTTP_200_OK, detail= response )
+        else:
+            raise HTTPException( 
+                status_code= status.HTTP_404_NOT_FOUND, 
+                detail= {
+                        "status" : "failed",
+                        "message": "role data not available",
+                        "data": None
+                }
+            )
+    
+    def get_type_blood_pressure(self,db: Session= Depends(get_db)):
+        response = UIService.get_type_blood_pressure(db)
+        if response:
+            raise HTTPException( status_code= status.HTTP_200_OK, detail= response )
+        else:
+            raise HTTPException( 
+                status_code= status.HTTP_404_NOT_FOUND, 
+                detail= {
+                        "status" : "failed",
+                        "message": "role data not available",
+                        "data": None
+                }
+            )
         
     def marital_status(self,db: Session = Depends(get_db)):
         response = UIService.get_roles(db)
