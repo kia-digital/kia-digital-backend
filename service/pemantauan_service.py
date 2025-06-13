@@ -9,10 +9,6 @@ class PemantauanService:
     def addPemantauan(cls, data: dict, user_id: str, db: Session):
         if data:
             try:
-                # Konversi tanggal dari string ke objek date
-                date = datetime.datetime.strptime(data["monitoring_date"], "%Y-%m-%d").date()
-
-                # Konversi nilai boolean dari input (antisipasi jika string masuk dari JSON)
                 def parse_bool(val):
                     if isinstance(val, bool):
                         return val
@@ -22,7 +18,6 @@ class PemantauanService:
 
                 weeklyMonitoring = WeeklyMonitoring(
                     users_id=user_id,
-                    monitoring_date=date,
                     weekly_pregnantcy=int(data["weekly_pregnantcy"]),
                     fever=parse_bool(data.get("fever", False)),
                     headache=parse_bool(data.get("headache", False)),
@@ -47,6 +42,7 @@ class PemantauanService:
                 }
 
             except Exception as e:
+                print(e)
                 db.rollback()
                 raise HTTPException(
                     status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,

@@ -1,4 +1,5 @@
 
+import datetime
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, Header, Request,status
 from sqlalchemy.orm import Session
@@ -21,9 +22,85 @@ class InquiryController:
         self.router = APIRouter(prefix= f"{URL_PATH}/inquiry")
         self.router.add_api_route("/information",self.information_mom,methods=["GET"])
         self.router.add_api_route("/information/update-users",self.patch_information,methods=["PATCH"])
+        self.router.add_api_route("/information/user",self.getById,methods=["GET"])
         self.router.add_api_route("/anc/add",self.addAnc,methods=["POST"])
+        self.router.add_api_route("/anc/update",self.updateAncById,methods=["PATCH"])
+        self.router.add_api_route("/anc/id",self.getAncById,methods=["GET"])
         self.router.add_api_route("/anc/",self.getAllAnc,methods=["GET"])
         self.router.add_api_route("/pemantauan/add",self.addPemantauan,methods=["POST"])
+        self.router.add_api_route("/information/hpht",self.getInformationHpht,methods=["GET"])
+        
+        
+    async def getAncById(self,
+                         id_anc:str,
+                         authorization: str = Header(None),db: Session = Depends(get_db)):
+        token = authorization.split(" ")[1]
+        data_verify = AuthService.verify_token(token)
+        if data_verify["status"] == 200:  
+            print(id_anc)
+            response = AncService.getAncById(id_anc,db)    
+            raise HTTPException(
+                status_code= status.HTTP_200_OK,
+                detail= response
+            )
+        
+        else: 
+            raise HTTPException(
+                status_code= status.HTTP_401_UNAUTHORIZED,
+                detail= data_verify
+            )
+        
+    async def getInformationHpht(self,authorization: str = Header(None),db: Session = Depends(get_db)):
+        token = authorization.split(" ")[1]
+        data_verify = AuthService.verify_token(token)
+        if data_verify["status"] == 200:
+            user_id = data_verify["payload"]["user_id"]    
+            response = InquiryService.getInformationHpht(user_id,db)    
+            raise HTTPException(
+                status_code= status.HTTP_200_OK,
+                detail= response
+            )
+        
+        else: 
+            raise HTTPException(
+                status_code= status.HTTP_401_UNAUTHORIZED,
+                detail= data_verify
+            )
+
+    async def getById(self,id:str,authorization: str = Header(None) ,db:Session = Depends(get_db)):
+        token = authorization.split(" ")[1]
+        data_verify = AuthService.verify_token(token)
+        if data_verify["status"] == 200:
+            response = InquiryService.getUserByID(id,db)    
+            raise HTTPException(
+                status_code= status.HTTP_200_OK,
+                detail= response
+            )
+        
+        else: 
+            raise HTTPException(
+                status_code= status.HTTP_401_UNAUTHORIZED,
+                detail= data_verify
+            )
+        
+    async def updateAncById(self,id_anc:str,req: Request, authorization: str = Header(None) ,db:Session = Depends(get_db)):
+        token = authorization.split(" ")[1]
+        body = await req.json()
+        
+        print(id_anc)
+        data_verify = AuthService.verify_token(token)
+        if data_verify["status"] == 200:
+            response = AncService.updateAncReport(body,id_anc,db)    
+            raise HTTPException(
+                status_code= status.HTTP_200_OK,
+                detail= response
+            )
+        
+        else: 
+            raise HTTPException(
+                status_code= status.HTTP_401_UNAUTHORIZED,
+                detail= data_verify
+            )
         
     async def addPemantauan(self,req: Request,authorization: str = Header(None) ,db:Session = Depends(get_db)):
         token = authorization.split(" ")[1]
@@ -42,6 +119,7 @@ class InquiryController:
                 status_code= status.HTTP_401_UNAUTHORIZED,
                 detail= data_verify
             )
+            
         
     async def getAllAnc(self,authorization:str=Header(None),db:Session=Depends(get_db)):
         token = authorization.split(" ")[1]
@@ -60,13 +138,14 @@ class InquiryController:
                 detail= data_verify
             )
     
-    async def addAnc(self,req: Request,db: Session = Depends(get_db),authorization: str = Header(None)):
+    async def addAnc(self,
+                     id: str,
+                     req: Request,db: Session = Depends(get_db),authorization: str = Header(None)):
         token = authorization.split(" ")[1]
         body = await req.json()
         data_verify = AuthService.verify_token(token)
         if data_verify["status"] == 200:
-            user_id = data_verify["payload"]["user_id"]    
-            response = AncService.addAncReport(body,user_id,db)    
+            response = AncService.addAncReport(body,id,db)    
             raise HTTPException(
                 status_code= status.HTTP_200_OK,
                 detail= response
@@ -118,7 +197,12 @@ class InquiryController:
             
             for key,value in user_update.items():
                 if hasattr(user,key):
-                    setattr(user,key,value)
+                    if key == "hpht":
+                        setattr(user,key,datetime.datetime.strptime(value, "%Y-%m-%d").date())
+                    elif key =="hpl":
+                        setattr(user,key,datetime.datetime.strptime(value, "%Y-%m-%d").date())
+                    else: 
+                        setattr(user,key,value)
             
             db.add(user)
             db.commit()

@@ -18,7 +18,22 @@ class DataUIController:
         self.router.add_api_route("/status-inquiry",self.status_inquiry,methods=["GET"])
         self.router.add_api_route("/type-blood-pressure",self.get_type_blood_pressure,methods=["GET"])
         self.router.add_api_route("/type-inquiry",self.getTypeInquiry,methods=["GET"])
+        self.router.add_api_route("/users",self.getAllUser,methods=["GET"])
         
+    
+    def getAllUser(self,db: Session= Depends(get_db)):
+        response = UIService.getAllUser(db)
+        if response:
+            raise HTTPException( status_code= status.HTTP_200_OK, detail= response )
+        else:
+            raise HTTPException( 
+                status_code= status.HTTP_404_NOT_FOUND, 
+                detail= {
+                        "status" : "failed",
+                        "message": "user data not available",
+                        "data": None
+                }
+            )
     
     def getTypeInquiry(self,db: Session = Depends(get_db)):
         response = UIService.getTypeInquiry(db)
