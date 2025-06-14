@@ -1,8 +1,51 @@
 from sqlalchemy.orm import Session
-from model.model import MaritalStatus, Role, Relationship, StatusInquiry,TypeInquiry
+from model.model import MaritalStatus, Role, Relationship, StatusInquiry,TypeInquiry,User
 
 class UIService:
     
+    @classmethod
+    def getAllUser(cls, db: Session):
+        try:
+            users = (
+                db.query(User)
+                .filter(User.role_id == 2, User.hpht != None)
+                .all()
+            )
+
+            if not users:
+                return {
+                    "status": "success",
+                    "message": "No users found with role_id 2 and hpht",
+                    "data": []
+                }
+
+            result = {
+                "status": "success",
+                "message": "Success get user status",
+                "data": [
+                    {
+                        "id": user.id,
+                        "name": user.name,
+                        "hpht": user.hpht.isoformat() if user.hpht else None
+                    }
+                    for user in users
+                ]
+            }
+            return result
+
+        except Exception as e:
+            print(e)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail={
+                    "status": "error",
+                    "message": f"Internal server error: {str(e)}",
+                    "data": None
+                }
+            )
+
+        finally:
+            db.close()
     
     @classmethod
     def getTypeInquiry(cls,db:Session):

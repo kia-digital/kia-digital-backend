@@ -30,6 +30,9 @@ class User(Base):
     account_verification = relationship("AccountVerification",
                                         back_populates="users")
     
+    hpht = Column(DATE,name="hpht")
+    hpl = Column(DATE,name="hpl")
+    
     marital_status_id = Column(INT,ForeignKey("marital_status.id"),nullable=True)
     marital_status = relationship("MaritalStatus",back_populates="users")
     emergency_contact = relationship("EmergencyContact", back_populates="user")
@@ -37,6 +40,8 @@ class User(Base):
     inquiry_anc = relationship("InquiryAnc", back_populates="users")
     scheduleds = relationship("Scheduleds",back_populates="mom")
     weekly_monitorings = relationship("WeeklyMonitoring", back_populates="user")
+    
+    category_classification = relationship("CategoryClassification",back_populates="users")
 
 class AccountVerification(Base):
     __tablename__ = "account_verifications"
@@ -114,6 +119,7 @@ class InquiryAnc(Base):
     body_temperature= Column(FLOAT,name="body_temperature",nullable=False)
     status_inquiry_id = Column(INT,ForeignKey("status_inquiry.id"),nullable=False)
     status_inquiry = relationship("StatusInquiry",back_populates="inquiry_anc")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     
 class StatusInquiry(Base):
@@ -151,7 +157,6 @@ class WeeklyMonitoring(Base):
     __tablename__ = "weekly_monitorings"
 
     id = Column(String, primary_key=True, default=generate_uuid)
-    monitoring_date = Column(DATE, nullable=False)
     weekly_pregnantcy = Column(INT, nullable=False)
     fever = Column(BOOLEAN, nullable=False)
     headache = Column(BOOLEAN, nullable=False)
@@ -171,7 +176,14 @@ class WeeklyMonitoring(Base):
     user = relationship("User", back_populates="weekly_monitorings")
     type_inquiry_rel = relationship("TypeInquiry", back_populates="weekly_monitoring")
 
-   
+
+class CategoryClassification(Base):
+    __tablename__ = "category_classification"
+    id = Column(INT,name="id",autoincrement=True,primary_key=True)
+    tag = Column(String,name="tag",nullable=False)
+    users_id = Column(String,ForeignKey("users.id"),nullable=False)
+    users = relationship("User",back_populates="category_classification")
+
 class TypeInquiry(Base):
     __tablename__ = "type_inquiry"
     

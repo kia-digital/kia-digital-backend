@@ -21,7 +21,7 @@ class UserService:
                         email=data["email"],
                         password = password_hash,
                         marital_status_id = data["marital_status"],
-                        role_id = 1
+                        role_id = 2
                     )
                 
                 db.add(new_account)
@@ -62,7 +62,9 @@ class UserService:
     
     @classmethod
     def check_isAvalibale(cls,data: dict,db: Session):
-        user = db.query(User).filter_by(email=data["email"]).first()
+        user = (db.query(User)
+                .join(Role,User.role_id == Role.id)
+                .filter(User.email == data["email"]).first())
         
         stored_password = user.password.encode()
         input_password = data["password"].encode("utf-8")
@@ -82,7 +84,12 @@ class UserService:
                     detail={
                             "status": "success",
                             "message": "login success",
-                            "token": token
+                            "token": token,
+                            "id_user": user.id,
+                            "role": {
+                                "id" : user.role_id,
+                                "role-name": user.role.name
+                            }
                 })
             else:
                 raise HTTPException(
